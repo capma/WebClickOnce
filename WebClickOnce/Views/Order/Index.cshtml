@@ -1,0 +1,119 @@
+﻿@model WebClickOnce.ViewModels.CategoryIndexData
+
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Index</h2>
+
+<div id="container">
+    <table id="dtCategory" class="table table-striped table-bordered table-hover" width="100%">
+        <thead>
+            <tr>
+                <th>CategoryName</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Categories)
+            {
+                <tr>
+                    @Html.HiddenFor(modelItem => item.CategoryID)
+
+                    <td>
+                        @Html.DisplayFor(modelItem => item.CategoryName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Description)
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (Model.Products != null)
+    {
+        <table id="dtProduct" class="table table-striped table-bordered table-hover" width="100%">
+            <thead>
+                <tr>
+                    <th>Product ID</th>
+                    <th>Product Name</th>
+                    <th>Quantity Per Unit</th>
+                    <th>Unit Price</th>
+                    <th>Units In Stock</th>
+                    <th>Units On Order</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Products)
+                {
+                    <tr>
+                        @Html.HiddenFor(modelItem => item.ProductID)
+
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ProductName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.QuantityPerUnit)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UnitPrice)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UnitsInStock)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.UnitsOnOrder)
+                        </td>
+
+                        <td>
+                            @Html.ActionLink("Edit", "Edit", new { id = item.ProductID }) |
+                            @Html.ActionLink("Details", "Details", new { id = item.ProductID }) |
+                            @Html.ActionLink("Delete", "Delete", new { id = item.ProductID })
+                        </td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@section scripts {
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#dtCategory').DataTable();
+            //$('#dtProduct').DataTable();
+
+            $('input.global_filter').on('keyup click', function () {
+                filterGlobal();
+            });
+
+            $('input.column_filter').on('keyup click', function () {
+                filterColumn($(this).parents('tr').attr('data-column'));
+            });
+
+            $('#dtCategory tbody').on('click', 'tr', function () {
+                //var data = table.row(this).data();
+                //alert('You clicked on ' + data[0] + '\'s row');
+
+                $('#dtProduct').DataTable({
+                    "processing": true,
+                    "serverSide": true,
+                    "ajax": {
+                        "url": "Order/Index",
+                        "data": function (d) {
+                            d.myKey = "CategoryID";
+                             d.custom = $('#myInput').val();
+                            // etc
+                        }
+                    }
+                });
+
+            });
+
+        });
+    </script>
+}
